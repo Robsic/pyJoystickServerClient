@@ -218,6 +218,7 @@ if __name__ == "__main__":
     joys = [joy_1]  # , joy_2, joy_3]
     joy_1.show_hids()
     # my_joystick.set_output(2, FASTBLINK)
+    print("Starting...")
     while True:
         # 10Hz sample rate
         time.sleep(1 / 10.0)
