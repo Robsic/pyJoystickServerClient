@@ -189,7 +189,7 @@ class Joystick3:
 
 if __name__ == "__main__":
     # Main configuration
-    UDP_IP = "127.0.0.1"  # Vehicle IP address
+    UDP_IP = "172.16.10.145"  # "127.0.0.1"  # Vehicle IP address
     UDP_PORT = 24421  # This port match the ones using on other scripts
 
     update_rate = 0.1  # 10 hz loop cycle
@@ -197,13 +197,13 @@ if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def socket_callback(msg):
-        # print(len(msg), type(msg), msg)
+        print(len(msg), type(msg), msg)
         payload = struct.pack(">15i", *msg)
         sock.sendto(payload, (UDP_IP, UDP_PORT))
 
     def socket_callback3(msg):
         msg = msg + [0] * 9
-        # print(len(msg), type(msg), msg)
+        print(len(msg), type(msg), msg)
         payload = struct.pack(">15i", *msg)
         # payload = (ctypes.c_float * (len(msg)))()
         # payload[:] = msg
