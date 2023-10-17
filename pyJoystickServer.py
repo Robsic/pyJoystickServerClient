@@ -2,6 +2,7 @@
 
 import socket
 import struct
+import ctypes
 
 # from pyjoystick.sdl2 import Key, Joystick, run_event_loop
 
@@ -40,7 +41,7 @@ class Joystick:
         self.device_index = device_index
         self.socket_callback = socket_callback
         self.__state_connected = False
-        self.axis_value = [0, 0, 0, 0, 0, 0]
+        self.axis_value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
         self.inputs_state = [0, 0, 0, 0, 0, 0, 0, 0]
         self.outputs_state = [0, 0, 0, 0]
         hid_devices = hid.HidDeviceFilter(
@@ -84,7 +85,7 @@ class Joystick:
     def raw_inputs_handler(self, data):
         """process raw hid inputs data : XYZ axis and inputs"""
         # data is a Python list of 9 integers in little endian format
-        print("Raw data: {0}".format(data))
+        # print("Raw data: {0}".format(data))
         # print(f"{data[5]:08b}:{data[6]:08b}")
 
         # AXIS
@@ -100,7 +101,9 @@ class Joystick:
         self.inputs_state = [int(x) for x in bin(data[13])[2:].zfill(8)]
 
         if self.socket_callback is not None:
-            self.socket_callback(self.device_index, self.axis_value + self.inputs_state)
+            self.socket_callback(
+                [self.device_index] + self.axis_value + self.inputs_state
+            )
 
     def get_axis(self, index):
         """return the value of the axis 0..2 / return signed integer"""
@@ -112,11 +115,11 @@ class Joystick:
 
 
 class Joystick3:
-    def __init__(self, device_index=0):
+    def __init__(self, device_index=0, socket_callback=None):
+        self.device_index = device_index
+        self.socket_callback = socket_callback
         self.__state_connected = False
-        self.axis_value = [0, 0, 0, 0, 0, 0]
-        self.inputs_state = [0, 0, 0, 0, 0, 0, 0, 0]
-        self.outputs_state = [0, 0, 0, 0]
+        self.axis_value = [0.0, 0.0, 0.0, 0.0, 0.0]
         hid_devices = hid.HidDeviceFilter(
             VendorId=target_vendor_id, product_id=target_product_id
         )
@@ -153,12 +156,15 @@ class Joystick3:
 
     def convert(self, lsb, msb):
         """convert little endian decimal bytes into signed integer"""
-        return (msb << 8) + lsb
+        val = (msb << 8) + lsb
+        if val >= (32 * 256) // 2:
+            val = val - (32 * 256)
+        return val
 
     def raw_inputs_handler(self, data):
         """process raw hid inputs data : XYZ axis and inputs"""
         # data is a Python list of 9 integers in little endian format
-        print("Raw data: {0}".format(data))
+        # print("Raw data: {0}".format(data))
         # print(f"{data[5]:08b}:{data[6]:08b}")
 
         # AXIS
@@ -170,7 +176,7 @@ class Joystick3:
         # self.axis_value[Sl1] = self.convert(data[11], data[12])
 
         if self.socket_callback is not None:
-            self.socket_callback(self.axis_value)
+            self.socket_callback([self.device_index] + self.axis_value)
 
     def get_axis(self, index):
         """return the value of the axis 0..2 / return signed integer"""
@@ -190,8 +196,17 @@ if __name__ == "__main__":
     # Create UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    def socket_callback(joy_id, msg):
-        payload = struct.pack(">15d", joy_id, msg)
+    def socket_callback(msg):
+        # print(len(msg), type(msg), msg)
+        payload = struct.pack(">15i", *msg)
+        sock.sendto(payload, (UDP_IP, UDP_PORT))
+
+    def socket_callback3(msg):
+        msg = msg + [0] * 9
+        # print(len(msg), type(msg), msg)
+        payload = struct.pack(">15i", *msg)
+        # payload = (ctypes.c_float * (len(msg)))()
+        # payload[:] = msg
         sock.sendto(payload, (UDP_IP, UDP_PORT))
 
     devices = hid.HidDeviceFilter(
@@ -212,11 +227,11 @@ if __name__ == "__main__":
             )
         )
 
-    joy_1 = Joystick(3, socket_callback=socket_callback)
-    # joy_2 = Joystick(2)
-    # joy_3 = Joystick(3)
-    joys = [joy_1]  # , joy_2, joy_3]
-    joy_1.show_hids()
+    joy_1 = Joystick(1, socket_callback=socket_callback)
+    joy_2 = Joystick(2, socket_callback=socket_callback)
+    joy_3 = Joystick3(3, socket_callback=socket_callback3)
+    # joys = [joy_1, joy_2, joy_3]
+    # joy_1.show_hids()
     # my_joystick.set_output(2, FASTBLINK)
     print("Starting...")
     while True:
