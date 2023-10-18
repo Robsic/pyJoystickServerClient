@@ -2,24 +2,6 @@
 
 import socket
 import struct
-import ctypes
-
-# from pyjoystick.sdl2 import Key, Joystick, run_event_loop
-
-
-# def print_add(joy):
-#     print('Added', joy)
-
-
-# def print_remove(joy):
-#     print('Removed', joy)
-
-
-# def key_received(key):
-#     print(key, key.value)
-#     buf = struct.pack('>10sd', bytes(str(key), 'ascii'), key.value)
-#     sock.sendto(buf, (UDP_IP, UDP_PORT))
-
 import pywinusb.hid as hid
 import time
 
@@ -31,9 +13,9 @@ target_product_id = 0x0009
 X = 0
 Y = 1
 Z = 2
-Rz = 3
-Sl0 = 4
-Sl1 = 5
+RZ = 3
+SL0 = 4
+SL1 = 5
 
 
 class Joystick:
@@ -92,9 +74,9 @@ class Joystick:
         self.axis_value[X] = self.convert(data[1], data[2])
         self.axis_value[Y] = self.convert(data[3], data[4])
         self.axis_value[Z] = self.convert(data[5], data[6])
-        self.axis_value[Rz] = self.convert(data[7], data[8])
-        self.axis_value[Sl0] = self.convert(data[9], data[10])
-        self.axis_value[Sl1] = self.convert(data[11], data[12])
+        self.axis_value[RZ] = self.convert(data[7], data[8])
+        self.axis_value[SL0] = self.convert(data[9], data[10])
+        self.axis_value[SL1] = self.convert(data[11], data[12])
 
         # INPUTS
         # convert int value to binary list
@@ -171,9 +153,8 @@ class Joystick3:
         self.axis_value[X] = self.convert(data[1], data[2])
         self.axis_value[Y] = self.convert(data[3], data[4])
         self.axis_value[Z] = self.convert(data[5], data[6])
-        self.axis_value[Rz] = self.convert(data[7], data[8])
-        self.axis_value[Sl0] = self.convert(data[9], data[10])
-        # self.axis_value[Sl1] = self.convert(data[11], data[12])
+        self.axis_value[RZ] = self.convert(data[7], data[8])
+        self.axis_value[SL0] = self.convert(data[9], data[10])
 
         if self.socket_callback is not None:
             self.socket_callback([self.device_index] + self.axis_value)
@@ -230,7 +211,6 @@ if __name__ == "__main__":
     joy_1 = Joystick(1, socket_callback=socket_callback)
     joy_2 = Joystick(2, socket_callback=socket_callback)
     joy_3 = Joystick3(3, socket_callback=socket_callback3)
-    # joys = [joy_1, joy_2, joy_3]
     # joy_1.show_hids()
     # my_joystick.set_output(2, FASTBLINK)
     print("Starting...")
@@ -238,5 +218,3 @@ if __name__ == "__main__":
         # 10Hz sample rate
         time.sleep(1 / 10.0)
 
-
-# run_event_loop(print_add, print_remove, key_received)
