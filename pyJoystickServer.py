@@ -178,13 +178,13 @@ if __name__ == "__main__":
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def socket_callback(msg):
-        print(len(msg), type(msg), msg)
+        print(msg)
         payload = struct.pack(">15i", *msg)
         sock.sendto(payload, (UDP_IP, UDP_PORT))
 
     def socket_callback3(msg):
         msg = msg + [0] * 9
-        print(len(msg), type(msg), msg)
+        print(msg)
         payload = struct.pack(">15i", *msg)
         # payload = (ctypes.c_float * (len(msg)))()
         # payload[:] = msg
@@ -217,4 +217,3 @@ if __name__ == "__main__":
     while True:
         # 10Hz sample rate
         time.sleep(1 / 10.0)
-
