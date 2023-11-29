@@ -22,6 +22,7 @@ SL1 = 5
 class Joystick:
     def __init__(self, device_index=0, socket_callback=None):
         self.device_index = device_index
+        print(f"\n***Inititiating device {self.device_index}.***\n")
         self.socket_callback = socket_callback
         self.__state_connected = False
         self.axis_value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
@@ -72,7 +73,7 @@ class Joystick:
         # print(f"{data[5]:08b}:{data[6]:08b}")
 
         # AXIS
-        print("dsize: ", sys.getsizeof(data))
+        print(f"dsize {self.device_index}: ", sys.getsizeof(data))
         self.axis_value[X] = self.convert(data[1], data[2])
         self.axis_value[Y] = self.convert(data[3], data[4])
         self.axis_value[Z] = self.convert(data[5], data[6])
@@ -101,6 +102,7 @@ class Joystick:
 class Joystick3:
     def __init__(self, device_index=0, socket_callback=None):
         self.device_index = device_index
+        print(f"\n***Inititiating device {self.device_index}.***\n")
         self.socket_callback = socket_callback
         self.__state_connected = False
         self.axis_value = [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -152,6 +154,7 @@ class Joystick3:
         # print(f"{data[5]:08b}:{data[6]:08b}")
 
         # AXIS
+        print(f"dsize {self.device_index}: ", sys.getsizeof(data))
         self.axis_value[X] = self.convert(data[1], data[2])
         self.axis_value[Y] = self.convert(data[3], data[4])
         self.axis_value[Z] = self.convert(data[5], data[6])
